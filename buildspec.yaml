@@ -22,10 +22,11 @@
 
 
 version: 0.2
-phases:
+env:
   variables:
     ECS_CLUSTER: "todo-app-cluster"  # Add your ECS cluster name here if not provided in the CodeBuild environment settings.
     SERVICE_NAME: "todo-app-service"  
+phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
