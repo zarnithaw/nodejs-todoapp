@@ -152,7 +152,7 @@ phases:
             }
           ]
         }
-EOF
+        EOF
 
       - echo Registering ECS Task Definition...
       - aws ecs register-task-definition --cli-input-json file://task-definition.json
