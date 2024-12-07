@@ -86,22 +86,20 @@
 #     - task-definition.json
 
 
-
-
 version: 0.2
 env:
   variables:
-    AWS_ACCOUNT_ID: "965080479351"  # Replace with your AWS Account ID
-    AWS_DEFAULT_REGION: "ap-southeast-1"  # Replace with your desired region
+    AWS_ACCOUNT_ID: "965080479351"
+    AWS_DEFAULT_REGION: "ap-southeast-1"
     IMAGE_REPO_NAME: "nodejs-todoapp"
-    ECS_CLUSTER: "todo-app-cluster"  # Add your ECS cluster name here if not provided in the CodeBuild environment settings.
-    SERVICE_NAME: "todo-app-service"  
+    ECS_CLUSTER: "todo-app-cluster"
+    SERVICE_NAME: "todo-app-service"
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - IMAGE_TAG=$(date +%Y%m%d%H%M%S)  # Auto-incremented version tag
+      - IMAGE_TAG=$(date +%Y%m%d%H%M%S)
       - echo $IMAGE_TAG
   build:
     commands:
@@ -115,14 +113,13 @@ phases:
       - echo Writing image definitions...
       - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
       - echo Creating ECS Task Definition...
-      - |
-        cat > task-definition.json <<EOF
+      - cat <<EOF > task-definition.json
         {
           "family": "todo-app-task",
           "containerDefinitions": [
             {
               "name": "todo-app-container",
-              "image": "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$NEW_TAG",
+              "image": "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG",
               "essential": true,
               "memory": 128,
               "cpu": 128,
@@ -136,18 +133,19 @@ phases:
             }
           ]
         }
-        EOF
-
+EOF
       - echo Registering ECS Task Definition...
       - aws ecs register-task-definition --cli-input-json file://task-definition.json
-
       - echo Updating ECS Service with new task definition...
-      - |
-        NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition todo-app-task --query "taskDefinition.taskDefinitionArn" --output text)
-        aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --force-new-deployment
+      - NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition todo-app-task --query "taskDefinition.taskDefinitionArn" --output text)
+      - echo $NEW_TASK_DEF_ARN
+      - aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --force-new-deployment
 
-  artifacts:
-    files:
-      - imagedefinitions.json
-      - task-definition.json
+artifacts:
+  files:
+    - imagedefinitions.json
+    - task-definition.json
+
+
+
 
