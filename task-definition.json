@@ -11,8 +11,6 @@
         "name": "todo-app-container",
         "image": "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG",
         "essential": true,
-        "memory": 128,
-        "cpu": 128,
         "portMappings": [
           {
             "containerPort": 3000,
