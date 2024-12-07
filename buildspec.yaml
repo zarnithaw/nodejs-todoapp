@@ -94,7 +94,7 @@ env:
     IMAGE_REPO_NAME: "nodejs-todoapp"
     ECS_CLUSTER: "todo-app-cluster"
     SERVICE_NAME: "todo-app-service"
-    DESIRED_COUNT: 1  # Number of tasks to run in the service
+    DESIRED_COUNT: 1
 phases:
   pre_build:
     commands:
@@ -111,38 +111,30 @@ phases:
     commands:
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-      - echo Writing image definitions...
-      - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
-      - echo Preparing task definition file...
-      - cp task-definition.json task-definition-temp.json
-      # - sed -i "s|\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
-      # - sed -i "s|\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition-temp.json
-      # - sed -i "s|\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
-      # - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
-      # - sed -i "s|\\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
-      # - sed -i "s|\\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition-temp.json
-      # - sed -i "s|\\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
-      # - sed -i "s|\\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
       - echo Registering ECS Task Definition...
-      # - cat task-definition-temp.json
+      - sed -i "s|\\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition.json
+      - sed -i "s|\\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition.json
+      - sed -i "s|\\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition.json
+      - sed -i "s|\\$IMAGE_TAG|$IMAGE_TAG|g" task-definition.json
       - aws ecs register-task-definition --cli-input-json file://task-definition.json
-      # - echo Retrieving new Task Definition ARN...
-      # - NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition todo-app-task --query "taskDefinition.taskDefinitionArn" --output text)
-      # - echo $NEW_TASK_DEF_ARN
-      # - echo Checking if ECS service exists...
-      # - SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER --services $SERVICE_NAME --query "services[0].status" --output text)
-      # - if [ "$SERVICE_EXISTS" == "None" ]; then
-      #     echo Creating new ECS service...
-      #     aws ecs create-service --cluster $ECS_CLUSTER --service-name $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --desired-count $DESIRED_COUNT --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[subnet-05e0b0459f829449b,subnet-0308d5b29833bac55,subnet-018f6699510ccb093],securityGroups=[sg-0b4eac0a57772cd31],assignPublicIp=ENABLED}";
-      #   else
-      #     echo Updating existing ECS service...
-      #     aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --force-new-deployment;
-      #   fi
+      - echo Retrieving new Task Definition ARN...
+      - NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition todo-app-task --query "taskDefinition.taskDefinitionArn" --output text)
+      - echo $NEW_TASK_DEF_ARN
+      - echo Checking if ECS service exists...
+      - SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER --services $SERVICE_NAME --query "services[0].status" --output text)
+      - if [ "$SERVICE_EXISTS" == "None" ]; then
+          echo Creating new ECS service...
+          aws ecs create-service --cluster $ECS_CLUSTER --service-name $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --desired-count $DESIRED_COUNT --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[subnet-05e0b0459f829449b,subnet-0308d5b29833bac55,subnet-018f6699510ccb093],securityGroups=[sg-0b4eac0a57772cd31],assignPublicIp=ENABLED}";
+        else
+          echo Updating existing ECS service...
+          aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --force-new-deployment;
+        fi
 
 artifacts:
   files:
     - imagedefinitions.json
-    - task-definition-temp.json
+    - task-definition.json
+
 
 
 
