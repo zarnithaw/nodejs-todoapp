@@ -113,13 +113,13 @@ phases:
       - echo Writing image definitions...
       - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
       - echo Preparing task definition file...
-      - cp task-definition.json task-definition-temp.json
-      - sed -i "s|\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
-      - sed -i "s|\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition-temp.json
-      - sed -i "s|\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
-      - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
+      # - cp task-definition.json task-definition-temp.json
+      # - sed -i "s|\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
+      # - sed -i "s|\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition-temp.json
+      # - sed -i "s|\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
+      # - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
       - echo Registering ECS Task Definition...
-      - aws ecs register-task-definition --cli-input-json file://task-definition-temp.json
+      - aws ecs register-task-definition --cli-input-json file://task-definition.json
       # - echo Updating ECS Service with new task definition...
       # - echo Retrieving new Task Definition ARN...
       # - NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition todo-app-task --query "taskDefinition.taskDefinitionArn" --output text)
