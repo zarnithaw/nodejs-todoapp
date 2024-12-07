@@ -114,24 +114,24 @@ phases:
       - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
       - echo Creating ECS Task Definition...
       - echo '{
-            "family": "todo-app-task",
-            "containerDefinitions": [
-              {
-                "name": "todo-app-container",
-                "image": "'$AWS_ACCOUNT_ID'.dkr.ecr.'$AWS_DEFAULT_REGION'.amazonaws.com/'$IMAGE_REPO_NAME':'$IMAGE_TAG'",
-                "essential": true,
-                "memory": 128,
-                "cpu": 128,
-                "portMappings": [
-                  {
-                    "containerPort": 3000,
-                    "hostPort": 0,
-                    "protocol": "tcp"
-                  }
-                ]
-              }
-            ]
-          }' > task-definition.json
+              "family": "todo-app-task",
+              "containerDefinitions": [
+                {
+                  "name": "todo-app-container",
+                  "image": "'$AWS_ACCOUNT_ID'.dkr.ecr.'$AWS_DEFAULT_REGION'.amazonaws.com/'$IMAGE_REPO_NAME':'$IMAGE_TAG'",
+                  "essential": true,
+                  "memory": 128,
+                  "cpu": 128,
+                  "portMappings": [
+                    {
+                      "containerPort": 3000,
+                      "hostPort": 0,
+                      "protocol": "tcp"
+                    }
+                  ]
+                }
+              ]
+            }' > task-definition.json
       - echo Registering ECS Task Definition...
       - aws ecs register-task-definition --cli-input-json file://task-definition.json
       - echo Updating ECS Service with new task definition...
@@ -143,7 +143,3 @@ artifacts:
   files:
     - imagedefinitions.json
     - task-definition.json
-
-
-
-
