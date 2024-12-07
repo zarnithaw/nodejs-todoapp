@@ -162,8 +162,8 @@ phases:
         NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition todo-app-task --query "taskDefinition.taskDefinitionArn" --output text)
         aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --force-new-deployment
 
-artifacts:
-  files:
-    - imagedefinitions.json
-    - task-definition.json
+  artifacts:
+    files:
+      - imagedefinitions.json
+      - task-definition.json
 
