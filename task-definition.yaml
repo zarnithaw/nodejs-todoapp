@@ -1,0 +1,14 @@
+family: todo-app-task
+networkMode: awsvpc
+requiresCompatibilities:
+  - FARGATE
+cpu: "256"
+memory: "512"
+containerDefinitions:
+  - name: todo-app-container
+    image: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+    essential: true
+    portMappings:
+      - containerPort: 3000
+        hostPort: 3000
+        protocol: tcp
