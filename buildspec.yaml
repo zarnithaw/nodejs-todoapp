@@ -94,42 +94,26 @@ env:
     AWS_ACCOUNT_ID: "965080479351"  # Replace with your AWS Account ID
     AWS_DEFAULT_REGION: "ap-southeast-1"  # Replace with your desired region
     IMAGE_REPO_NAME: "nodejs-todoapp"
-    ECS_CLUSTER: "todo-app-cluster"  # Add your ECS cluster name here
-    SERVICE_NAME: "todo-app-service"
-
+    ECS_CLUSTER: "todo-app-cluster"  # Add your ECS cluster name here if not provided in the CodeBuild environment settings.
+    SERVICE_NAME: "todo-app-service"  
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-
-      # Fetch the latest tag from ECR and increment
-      - echo Fetching the latest image tag...
-      - |
-        LATEST_TAG=$(aws ecr list-images --repository-name $IMAGE_REPO_NAME --query "imageIds[*].imageTag" --output text | grep -E '^v[0-9]+$' | sort -V | tail -n 1)
-        if [ -z "$LATEST_TAG" ]; then
-          NEW_TAG="v1"
-        else
-          VERSION=$(echo $LATEST_TAG | sed 's/v//')
-          NEW_VERSION=$((VERSION + 1))
-          NEW_TAG="v$NEW_VERSION"
-        fi
-      - echo "New tag: $NEW_TAG"
-
+      - IMAGE_TAG=$(date +%Y%m%d%H%M%S)  # Auto-incremented version tag
+      - echo $IMAGE_TAG
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t $IMAGE_REPO_NAME:$NEW_TAG .
-      - docker tag $IMAGE_REPO_NAME:$NEW_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$NEW_TAG
-
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG 
   post_build:
     commands:
       - echo Pushing the Docker image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$NEW_TAG
-
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo Writing image definitions...
-      - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$NEW_TAG > imagedefinitions.json
-
+      - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
       - echo Creating ECS Task Definition...
       - |
         cat > task-definition.json <<EOF
