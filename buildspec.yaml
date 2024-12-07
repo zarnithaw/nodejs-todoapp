@@ -127,7 +127,7 @@ phases:
       - NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition todo-app-task --query "taskDefinition.taskDefinitionArn" --output text)
       - echo $NEW_TASK_DEF_ARN
       - echo Checking if ECS service exists...
-      - SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER --services $SERVICE_NAME --query "services[0].status" --output text)
+      - SERVICE_EXISTS=$(aws ecs describe-services --cluster $ECS_CLUSTER --services $SERVICE_NAME --query "services[0].serviceName" --output text)
       - if [ "$SERVICE_EXISTS" == "None" ]; then
           echo Creating new ECS service...
           aws ecs create-service --cluster $ECS_CLUSTER --service-name $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --desired-count $DESIRED_COUNT --launch-type FARGATE --network-configuration "awsvpcConfiguration={subnets=[subnet-05e0b0459f829449b,subnet-0308d5b29833bac55,subnet-018f6699510ccb093],securityGroups=[sg-0b4eac0a57772cd31],assignPublicIp=ENABLED}";
