@@ -121,7 +121,6 @@ phases:
       - echo Registering ECS Task Definition...
       - aws ecs register-task-definition --cli-input-json file://task-definition-temp.json
       - echo Updating ECS Service with new task definition...
-<<<<<<< HEAD
       - echo Retrieving new Task Definition ARN...
       - NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition todo-app-task --query "taskDefinition.taskDefinitionArn" --output text)
       - echo $NEW_TASK_DEF_ARN
@@ -135,11 +134,6 @@ phases:
           echo Updating existing ECS service...
           aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --force-new-deployment;
         fi
-=======
-      - NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition todo-app-task --query "taskDefinition.taskDefinitionArn" --output text)
-      - echo $NEW_TASK_DEF_ARN
-      - aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $NEW_TASK_DEF_ARN --force-new-deployment
->>>>>>> parent of 501cb8b (update)
 
 artifacts:
   files:
