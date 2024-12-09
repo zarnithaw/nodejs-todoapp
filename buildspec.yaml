@@ -117,7 +117,7 @@ phases:
       - sed -i "s|\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
       - sed -i "s|\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition-temp.json
       - sed -i "s|\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
-      - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.jsno
+      - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
       - echo Registering ECS Task Definition...
       - aws ecs register-task-definition --cli-input-yaml file://task-definition-temp.json
       # - echo Updating ECS Service with new task definition...
