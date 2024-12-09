@@ -3,7 +3,7 @@ Resources:
   - TargetService:
       Type: AWS::ECS::Service
       Properties:
-        TaskDefinition: "arn:aws:ecs:ap-southeast-1:965080479351:task-definition/todo-web-app-task:1"
+        TaskDefinition: "arn:aws:ecs:ap-southeast-1:965080479351:task-definition/todo-app-task:4"
         LoadBalancerInfo:
           ContainerName: "todo-web-app-container"
           ContainerPort: 3000
