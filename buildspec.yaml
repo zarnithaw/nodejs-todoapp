@@ -124,6 +124,17 @@ phases:
       - cat task-definition-temp.json
       - echo Registering ECS Task Definition...
       - aws ecs register-task-definition --cli-input-json file://task-definition-temp.json
+
+      ####Update path#########
+      # Get the latest task definition ARN dynamically
+      - echo Fetching the latest task definition ARN...
+      - LATEST_TASK_DEFINITION_ARN=$(aws ecs list-task-definitions --family-prefix $TASK_FAMILY --sort DESC --region $AWS_DEFAULT_REGION --query "taskDefinitionArns[0]" --output text)
+      - echo "Latest Task Definition ARN: $LATEST_TASK_DEFINITION_ARN"
+
+      # Update the ECS service with the latest task definition
+      - echo Updating the ECS service with the latest task definition...
+      - aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $LATEST_TASK_DEFINITION_ARN --region $AWS_DEFAULT_REGION
+
 artifacts:
   files:
     - imagedefinitions.json
@@ -137,3 +148,36 @@ artifacts:
     path: cawscicddemohmp/todo-app  # Directory inside your S3 bucket
 
 
+# version: 0.2
+# phases:
+#   pre_build:
+#     commands:
+#       - echo Logging in to Amazon ECR...
+#       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPOSITORY_URI
+      
+#       # Fetch the latest Git tag
+#       - echo Fetching the latest Git tag...
+#       - git fetch --tags
+#       - CURRENT_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1) || echo "1.0")
+#       - echo "Current Version: $CURRENT_VERSION"
+      
+#       # Increment the version
+#       - MAJOR=$(echo $CURRENT_VERSION | cut -d'.' -f1)
+#       - MINOR=$(echo $CURRENT_VERSION | cut -d'.' -f2)
+#       - NEW_MINOR=$((MINOR + 1))
+#       - NEW_VERSION="$MAJOR.$NEW_MINOR"
+#       - echo "New Version: $NEW_VERSION"
+
+#   build:
+#     commands:
+#       - echo Building Docker image with tag $NEW_VERSION...
+#       - docker build -t $REPOSITORY_URI:$NEW_VERSION .
+
+#   post_build:
+#     commands:
+#       - echo Tagging the new version in GitHub...
+#       - git tag $NEW_VERSION
+#       - git push origin $NEW_VERSION
+      
+#       - echo Pushing the Docker image to ECR...
+#       - docker push $REPOSITORY_URI:$NEW_VERSION
