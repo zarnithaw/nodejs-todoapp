@@ -183,7 +183,6 @@
 #       - docker push $REPOSITORY_URI:$NEW_VERSION
 
 
-
 version: 0.2
 env:
   variables:
@@ -211,33 +210,45 @@ phases:
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo Writing image definitions...
       - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
-      
       - echo Preparing task definition file...
       - cp task-definition.json task-definition-temp.json
       - sed -i "s|\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
-      - sed -i "s|\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition-temp.json
+      - sed -i "s|\$AWS_DEFAULT_REGION|ap-southeast-1|g" task-definition-temp.json
       - sed -i "s|\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
       - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
-      
+      # Output the contents for debugging
       - echo "Contents of task-definition-temp.json:"
       - cat task-definition-temp.json
       - echo Registering ECS Task Definition...
       - aws ecs register-task-definition --cli-input-json file://task-definition-temp.json
-      
+
+      ####Update path#########
+      # Get the latest task definition ARN dynamically
+      # - echo Fetching the latest task definition ARN...
+      # - LATEST_TASK_DEFINITION_ARN=$(aws ecs list-task-definitions --sort DESC --region "ap-southeast-1" --query "taskDefinitionArns[0]" --output text)
+      # - echo "Latest Task Definition ARN: $LATEST_TASK_DEFINITION_ARN"
+
+      # # # Update the ECS service with the latest task definition
+      # - echo Updating the ECS service with the latest task definition...
+      # - aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $LATEST_TASK_DEFINITION_ARN --region $AWS_DEFAULT_REGION
       - echo Updating ECS Service with new task definition...
       - NEW_TASK_DEF_ARN=$(aws ecs list-task-definitions --sort DESC --region $AWS_REGION --query "taskDefinitionArns[0]" --output text)
       # - NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition ecs-task  --query "taskDefinition.taskDefinitionArn" --output text)
       - echo $NEW_TASK_DEF_ARN
+      ###if you run with codedeploy manually you need to uncomment
+      # - aws s3 cp appspec.yaml s3://nodejs-helloworld/appspec.yaml
+      # - aws s3 cp scripts s3://my-bucket/scripts/ --recursive
 
+      
 artifacts:
   files:
     - imagedefinitions.json
     - task-definition-temp.json
+    - appspec.yaml
 
   # Uploading artifacts to S3
-  base-directory: .
+  base-directory: .  # Current directory (root of CodeBuild environment)
   discard-paths: yes
   s3:
     bucket: awscicddemohmp
-    path: awscicddemohmp/todo-app
-
+    path: awscicddemohmp/todo-app  # Directory inside your S3 bucket
