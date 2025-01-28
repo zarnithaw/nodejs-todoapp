@@ -92,7 +92,7 @@ env:
     AWS_ACCOUNT_ID: "965080479351"
     AWS_DEFAULT_REGION: "ap-southeast-1"
     IMAGE_REPO_NAME: "nodejs-todoapp"
-    ECS_CLUSTER: "todo-app-cluster"
+    ECS_CLUSTER: "my-cluster"
     SERVICE_NAME: "todo-app-service"
 
 phases:
