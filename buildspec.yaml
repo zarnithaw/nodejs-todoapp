@@ -85,68 +85,68 @@
 #     - imagedefinitions.json
 #     - task-definition.json
 
+#################working fine code#####################
+# version: 0.2
+# env:
+#   variables:
+#     AWS_ACCOUNT_ID: "965080479351"
+#     AWS_DEFAULT_REGION: "ap-southeast-1"
+#     IMAGE_REPO_NAME: "nodejs-todoapp"
+#     ECS_CLUSTER: "my-cluster"
+#     SERVICE_NAME: "todo-app-service"
 
-version: 0.2
-env:
-  variables:
-    AWS_ACCOUNT_ID: "965080479351"
-    AWS_DEFAULT_REGION: "ap-southeast-1"
-    IMAGE_REPO_NAME: "nodejs-todoapp"
-    ECS_CLUSTER: "my-cluster"
-    SERVICE_NAME: "todo-app-service"
+# phases:
+#   pre_build:
+#     commands:
+#       - echo Logging in to Amazon ECR...
+#       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+#       - IMAGE_TAG=$(date +%Y%m%d%H%M%S)
+#       - echo $IMAGE_TAG
+#   build:
+#     commands:
+#       - echo Building the Docker image...
+#       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+#       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+#   post_build:
+#     commands:
+#       - echo Pushing the Docker image...
+#       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+#       - echo Writing image definitions...
+#       - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+#       - echo Preparing task definition file...
+#       - cp task-definition.json task-definition-temp.json
+#       - sed -i "s|\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
+#       - sed -i "s|\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition-temp.json
+#       - sed -i "s|\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
+#       - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
+#       # Output the contents for debugging
+#       - echo "Contents of task-definition-temp.json:"
+#       - cat task-definition-temp.json
+#       - echo Registering ECS Task Definition...
+#       - aws ecs register-task-definition --cli-input-json file://task-definition-temp.json
 
-phases:
-  pre_build:
-    commands:
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - IMAGE_TAG=$(date +%Y%m%d%H%M%S)
-      - echo $IMAGE_TAG
-  build:
-    commands:
-      - echo Building the Docker image...
-      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
-      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-  post_build:
-    commands:
-      - echo Pushing the Docker image...
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
-      - echo Writing image definitions...
-      - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
-      - echo Preparing task definition file...
-      - cp task-definition.json task-definition-temp.json
-      - sed -i "s|\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
-      - sed -i "s|\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition-temp.json
-      - sed -i "s|\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
-      - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
-      # Output the contents for debugging
-      - echo "Contents of task-definition-temp.json:"
-      - cat task-definition-temp.json
-      - echo Registering ECS Task Definition...
-      - aws ecs register-task-definition --cli-input-json file://task-definition-temp.json
+#       ####Update path#########
+#       # Get the latest task definition ARN dynamically
+#       - echo Fetching the latest task definition ARN...
+#       - LATEST_TASK_DEFINITION_ARN=$(aws ecs list-task-definitions --family-prefix $TASK_FAMILY --sort DESC --region $AWS_DEFAULT_REGION --query "taskDefinitionArns[0]" --output text)
+#       - echo "Latest Task Definition ARN: $LATEST_TASK_DEFINITION_ARN"
 
-      ####Update path#########
-      # Get the latest task definition ARN dynamically
-      - echo Fetching the latest task definition ARN...
-      - LATEST_TASK_DEFINITION_ARN=$(aws ecs list-task-definitions --family-prefix $TASK_FAMILY --sort DESC --region $AWS_DEFAULT_REGION --query "taskDefinitionArns[0]" --output text)
-      - echo "Latest Task Definition ARN: $LATEST_TASK_DEFINITION_ARN"
+#       # Update the ECS service with the latest task definition
+#       - echo Updating the ECS service with the latest task definition...
+#       - aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $LATEST_TASK_DEFINITION_ARN --region $AWS_DEFAULT_REGION
 
-      # Update the ECS service with the latest task definition
-      - echo Updating the ECS service with the latest task definition...
-      - aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $LATEST_TASK_DEFINITION_ARN --region $AWS_DEFAULT_REGION
+# artifacts:
+#   files:
+#     - imagedefinitions.json
+#     - task-definition-temp.json
 
-artifacts:
-  files:
-    - imagedefinitions.json
-    - task-definition-temp.json
-
-  # Uploading artifacts to S3
-  base-directory: .  # Current directory (root of CodeBuild environment)
-  discard-paths: yes
-  s3:
-    bucket: awscicddemohmp
-    path: cawscicddemohmp/todo-app  # Directory inside your S3 bucket
-
+#   # Uploading artifacts to S3
+#   base-directory: .  # Current directory (root of CodeBuild environment)
+#   discard-paths: yes
+#   s3:
+#     bucket: awscicddemohmp
+#     path: cawscicddemohmp/todo-app  # Directory inside your S3 bucket
+#################working fine code#####################
 
 # version: 0.2
 # phases:
@@ -181,3 +181,67 @@ artifacts:
       
 #       - echo Pushing the Docker image to ECR...
 #       - docker push $REPOSITORY_URI:$NEW_VERSION
+
+
+
+version: 0.2
+env:
+  variables:
+    AWS_ACCOUNT_ID: "965080479351"
+    AWS_DEFAULT_REGION: "ap-southeast-1"
+    IMAGE_REPO_NAME: "nodejs-todoapp"
+    ECS_CLUSTER: "my-cluster"
+    SERVICE_NAME: "todo-app-service"
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - IMAGE_TAG=$(date +%Y%m%d%H%M%S)
+      - echo $IMAGE_TAG
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Pushing the Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Writing image definitions...
+      - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+      
+      - echo Preparing task definition file...
+      - cp task-definition.json task-definition-temp.json
+      - sed -i "s|\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
+      - sed -i "s|\$AWS_DEFAULT_REGION|$AWS_DEFAULT_REGION|g" task-definition-temp.json
+      - sed -i "s|\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
+      - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
+      
+      # Debugging task definition
+      - echo "Contents of task-definition-temp.json:"
+      - cat task-definition-temp.json
+      
+      - echo Registering ECS Task Definition...
+      - aws ecs register-task-definition --cli-input-json file://task-definition-temp.json
+
+      - echo Fetching the latest task definition ARN...
+      - LATEST_TASK_DEFINITION_ARN=$(aws ecs list-task-definitions --family-prefix $IMAGE_REPO_NAME --sort DESC --region $AWS_DEFAULT_REGION --query "taskDefinitionArns[0]" --output text)
+      - echo "Latest Task Definition ARN: $LATEST_TASK_DEFINITION_ARN"
+      
+      - echo Updating ECS Service with new task definition...
+      - aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $LATEST_TASK_DEFINITION_ARN --region $AWS_DEFAULT_REGION --force-new-deployment
+
+artifacts:
+  files:
+    - imagedefinitions.json
+    - task-definition-temp.json
+
+  # Uploading artifacts to S3
+  base-directory: .
+  discard-paths: yes
+  s3:
+    bucket: awscicddemohmp
+    path: awscicddemohmp/todo-app
+
