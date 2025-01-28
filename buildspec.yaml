@@ -219,19 +219,15 @@ phases:
       - sed -i "s|\$IMAGE_REPO_NAME|$IMAGE_REPO_NAME|g" task-definition-temp.json
       - sed -i "s|\$IMAGE_TAG|$IMAGE_TAG|g" task-definition-temp.json
       
-      # Debugging task definition
       - echo "Contents of task-definition-temp.json:"
       - cat task-definition-temp.json
-      
       - echo Registering ECS Task Definition...
       - aws ecs register-task-definition --cli-input-json file://task-definition-temp.json
-
-      - echo Fetching the latest task definition ARN...
-      - LATEST_TASK_DEFINITION_ARN=$(aws ecs list-task-definitions --family-prefix $IMAGE_REPO_NAME --sort DESC --region $AWS_DEFAULT_REGION --query "taskDefinitionArns[0]" --output text)
-      - echo "Latest Task Definition ARN: $LATEST_TASK_DEFINITION_ARN"
       
       - echo Updating ECS Service with new task definition...
-      - aws ecs update-service --cluster $ECS_CLUSTER --service $SERVICE_NAME --task-definition $LATEST_TASK_DEFINITION_ARN --region $AWS_DEFAULT_REGION --force-new-deployment
+      - NEW_TASK_DEF_ARN=$(aws ecs list-task-definitions --sort DESC --region $AWS_REGION --query "taskDefinitionArns[0]" --output text)
+      # - NEW_TASK_DEF_ARN=$(aws ecs describe-task-definition --task-definition ecs-task  --query "taskDefinition.taskDefinitionArn" --output text)
+      - echo $NEW_TASK_DEF_ARN
 
 artifacts:
   files:
