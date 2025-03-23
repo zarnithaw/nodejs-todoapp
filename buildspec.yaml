@@ -3,9 +3,9 @@ env:
   variables:
     AWS_ACCOUNT_ID: "965080479351"
     AWS_DEFAULT_REGION: "ap-southeast-1"
-    IMAGE_REPO_NAME: "nodejs/todo-app"
-    ECS_CLUSTER: "ecs-cluster"
-    SERVICE_NAME: "todo-app-service"
+    IMAGE_REPO_NAME: "todo-app"
+    ECS_CLUSTER: "ECS-Cluster"
+    SERVICE_NAME: "todo-service"
 
 phases:
   pre_build:
@@ -30,7 +30,7 @@ phases:
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo Writing image definitions...
-      - printf '[{"name":"todo-app-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"todo-app","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
       - echo Preparing task definition file...
       - cp task-definition.json task-definition-temp.json
       - sed -i "s|\$AWS_ACCOUNT_ID|$AWS_ACCOUNT_ID|g" task-definition-temp.json
@@ -59,5 +59,5 @@ artifacts:
   base-directory: .  # Current directory (root of CodeBuild environment)
   discard-paths: yes
   s3:
-    bucket: nodejsmta
-    path: nodejsmta/todo-app  # Directory inside your S3 bucket
+    bucket: nodejsmtatodoapp
+    path: nodejsmtatodoapp/todo-app  # Directory inside your S3 bucket
