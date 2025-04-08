@@ -60,5 +60,5 @@ artifacts:
   base-directory: .  # Current directory (root of CodeBuild environment)
   discard-paths: yes
   s3:
-    bucket: nodejsmtatodoapp
-    path: nodejsmtatodoapp/todo-app  # Directory inside your S3 bucket
+    bucket: nodejsznt
+    path: nodejsznt/todo-app  # Directory inside your S3 bucket
