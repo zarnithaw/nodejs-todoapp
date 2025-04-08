@@ -2,7 +2,7 @@ version: 0.2
 env:
   variables:
     AWS_ACCOUNT_ID: "965080479351"
-    AWS_DEFAULT_REGION: "ap-southeast-1"
+    AWS_DEFAULT_REGION: "ap-south-1"
     IMAGE_REPO_NAME: "todo-app"
     ECS_CLUSTER: "ECS-Cluster"
     SERVICE_NAME: "todo-service"
