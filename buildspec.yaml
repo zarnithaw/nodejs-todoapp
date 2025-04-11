@@ -3,7 +3,7 @@ env:
   variables:
     AWS_ACCOUNT_ID: "590184020206"
     AWS_DEFAULT_REGION: "ap-southeast-1"
-    IMAGE_REPO_NAME: "todo-app"
+    IMAGE_REPO_NAME: "nodejs/todo-app"
     ECS_CLUSTER: "ecs-cluster"
     SERVICE_NAME: "todo-service"
     TASK_DEF_FAMILY: "todo-app"
