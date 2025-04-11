@@ -6,7 +6,7 @@ env:
     IMAGE_REPO_NAME: "nodejs/todo-app"
     ECS_CLUSTER: "ecs-cluster"
     SERVICE_NAME: "todo-service"
-    TASK_DEF_FAMILY: "todo-app"
+   
 
 phases:
   pre_build:
