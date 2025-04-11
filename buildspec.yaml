@@ -53,7 +53,7 @@ phases:
 artifacts:
   files:
     - imagedefinitions.json
-    - task-definition-temp.json
+    - task-definition.json
     - appspec.yaml
 
   # Uploading artifacts to S3
