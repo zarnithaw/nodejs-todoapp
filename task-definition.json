@@ -1,5 +1,5 @@
 {
-    "family": "$TASK_DEF_FAMILY",
+    "family": "todo-app-family",
     "networkMode": "awsvpc",
     "requiresCompatibilities": [
       "FARGATE"
